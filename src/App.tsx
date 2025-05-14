@@ -20,6 +20,9 @@ import Approvals from "./pages/Approvals";
 import PrintBadges from "./pages/PrintBadges";
 import MobileCheckIn from "./pages/MobileCheckIn";
 import Analytics from "./pages/Analytics";
+import BadgeManagement from "./pages/BadgeManagement";
+import UserManagement from "./pages/UserManagement";
+import Settings from "./pages/Settings";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 
@@ -70,6 +73,9 @@ const App = () => (
                 </RouteGuard>
               } />
               
+              {/* Badge management */}
+              <Route path="/badge-management" element={<BadgeManagement />} />
+              
               {/* Badge printing */}
               <Route path="/print-badges" element={<PrintBadges />} />
               
@@ -78,6 +84,16 @@ const App = () => (
               
               {/* Analytics */}
               <Route path="/analytics" element={<Analytics />} />
+
+              {/* User Management - admin only */}
+              <Route path="/users" element={
+                <RouteGuard allowedRoles={['admin']}>
+                  <UserManagement />
+                </RouteGuard>
+              } />
+
+              {/* Settings - accessible to all roles */}
+              <Route path="/settings" element={<Settings />} />
             </Route>
             
             {/* Redirect root to dashboard or login */}
