@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ThemeProvider } from '@/components/ui/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import RouteGuard from './components/RouteGuard';
@@ -34,7 +34,11 @@ function App() {
             <Route path="/events/:eventId/register" element={<EventRegistration />} />
             
             {/* Protected routes */}
-            <Route element={<RouteGuard allowedRoles={['admin', 'organizer', 'usher']} />}>
+            <Route element={
+              <RouteGuard allowedRoles={['admin', 'organizer', 'usher']}>
+                <Outlet />
+              </RouteGuard>
+            }>
               <Route path="/" element={<DashboardLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="events" element={<Events />} />
@@ -47,7 +51,11 @@ function App() {
             </Route>
             
             {/* Admin-only routes */}
-            <Route element={<RouteGuard allowedRoles={['admin']} />}>
+            <Route element={
+              <RouteGuard allowedRoles={['admin']}>
+                <Outlet />
+              </RouteGuard>
+            }>
               <Route path="/" element={<DashboardLayout />}>
                 <Route path="approvals" element={<Approvals />} />
                 <Route path="analytics" element={<Analytics />} />
