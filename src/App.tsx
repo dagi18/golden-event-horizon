@@ -1,111 +1,71 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@/components/ui/theme-provider';
+import { Toaster } from '@/components/ui/toaster';
+import RouteGuard from './components/RouteGuard';
+import DashboardLayout from './components/layouts/DashboardLayout';
+import Dashboard from './pages/Dashboard';
+import Events from './pages/Events';
+import EventStage from './pages/EventStage';
+import Approvals from './pages/Approvals';
+import Analytics from './pages/Analytics';
+import Guests from './pages/Guests';
+import MobileCheckIn from './pages/MobileCheckIn';
+import PrintBadges from './pages/PrintBadges';
+import Vendors from './pages/Vendors';
+import Settings from './pages/Settings';
+import UserManagement from './pages/UserManagement';
+import BadgeManagement from './pages/BadgeManagement';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
+import Unauthorized from './pages/Unauthorized';
+import { AuthProvider } from './contexts/AuthContext';
+import EventRegistration from './pages/EventRegistration';
 
-// Layouts
-import DashboardLayout from "./components/layouts/DashboardLayout";
-
-// Pages
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Events from "./pages/Events";
-import EventStage from "./pages/EventStage";
-import Guests from "./pages/Guests";
-import Vendors from "./pages/Vendors";
-import Approvals from "./pages/Approvals";
-import PrintBadges from "./pages/PrintBadges";
-import MobileCheckIn from "./pages/MobileCheckIn";
-import Analytics from "./pages/Analytics";
-import BadgeManagement from "./pages/BadgeManagement";
-import UserManagement from "./pages/UserManagement";
-import Settings from "./pages/Settings";
-import Unauthorized from "./pages/Unauthorized";
-import NotFound from "./pages/NotFound";
-
-// Route Guard
-import RouteGuard from "./components/RouteGuard";
-
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+function App() {
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <AuthProvider>
+        <Router>
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/events/:eventId/register" element={<EventRegistration />} />
             
-            {/* Protected routes with DashboardLayout */}
-            <Route element={
-              <RouteGuard>
-                <DashboardLayout />
-              </RouteGuard>
-            }>
-              {/* Dashboard - accessible to all roles */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              
-              {/* Events routes */}
-              <Route path="/events" element={<Events />} />
-              <Route path="/events/stage" element={
-                <RouteGuard allowedRoles={['admin', 'organizer']}>
-                  <EventStage />
-                </RouteGuard>
-              } />
-              
-              {/* Guests routes */}
-              <Route path="/guests" element={<Guests />} />
-              
-              {/* Vendors routes */}
-              <Route path="/vendors" element={<Vendors />} />
-              
-              {/* Approvals - admin only */}
-              <Route path="/approvals" element={
-                <RouteGuard allowedRoles={['admin']}>
-                  <Approvals />
-                </RouteGuard>
-              } />
-              
-              {/* Badge management */}
-              <Route path="/badge-management" element={<BadgeManagement />} />
-              
-              {/* Badge printing */}
-              <Route path="/print-badges" element={<PrintBadges />} />
-              
-              {/* Mobile check-in */}
-              <Route path="/mobile-check-in" element={<MobileCheckIn />} />
-              
-              {/* Analytics */}
-              <Route path="/analytics" element={<Analytics />} />
-
-              {/* User Management - admin only */}
-              <Route path="/users" element={
-                <RouteGuard allowedRoles={['admin']}>
-                  <UserManagement />
-                </RouteGuard>
-              } />
-
-              {/* Settings - accessible to all roles */}
-              <Route path="/settings" element={<Settings />} />
+            {/* Protected routes */}
+            <Route element={<RouteGuard allowedRoles={['admin', 'organizer', 'usher']} />}>
+              <Route path="/" element={<DashboardLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="events" element={<Events />} />
+                <Route path="events/stage" element={<EventStage />} />
+                <Route path="guests" element={<Guests />} />
+                <Route path="mobile-check-in" element={<MobileCheckIn />} />
+                <Route path="print-badges" element={<PrintBadges />} />
+                <Route path="badge-management" element={<BadgeManagement />} />
+              </Route>
             </Route>
             
-            {/* Redirect root to dashboard or login */}
-            <Route path="/" element={<RouteGuard><Dashboard /></RouteGuard>} />
+            {/* Admin-only routes */}
+            <Route element={<RouteGuard allowedRoles={['admin']} />}>
+              <Route path="/" element={<DashboardLayout />}>
+                <Route path="approvals" element={<Approvals />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="vendors" element={<Vendors />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="user-management" element={<UserManagement />} />
+              </Route>
+            </Route>
             
-            {/* 404 page */}
+            {/* Redirect and 404 */}
+            <Route path="/" element={<Navigate to="/events" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+        </Router>
+        <Toaster />
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
 
 export default App;

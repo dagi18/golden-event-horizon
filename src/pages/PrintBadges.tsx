@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { Printer, RotateCcw, Search, Check, QrCode } from 'lucide-react';
+import { Printer, RotateCcw, Search, QrCode } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
+import EventBadge from '../components/EventBadge';
 
 interface Guest {
   id: string;
@@ -80,6 +81,14 @@ const initialGuests: Guest[] = [
   }
 ];
 
+// Mock event data
+const eventData = {
+  name: "Annual Tech Conference 2025",
+  date: "Sunday, 25th of April 2025",
+  time: "10h - 19h",
+  location: "110 Avenue de la Marne, 56000 Vannes"
+};
+
 const PrintBadges: React.FC = () => {
   const [guests, setGuests] = useState<Guest[]>(initialGuests);
   const [selectedGuests, setSelectedGuests] = useState<string[]>([]);
@@ -128,6 +137,109 @@ const PrintBadges: React.FC = () => {
     
     setGuests(updatedGuests);
     
+    // Create a print-friendly version
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const selectedGuestDetails = guests.filter(guest => selectedGuests.includes(guest.id));
+      
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Badges</title>
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            <style>
+              @media print {
+                body { margin: 0; padding: 0; }
+                .badge-container { page-break-inside: avoid; break-inside: avoid; }
+                @page { size: portrait; margin: 10mm; }
+              }
+              .badge-container {
+                width: 300px;
+                height: 500px;
+                margin: 20px auto;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                background-color: white;
+              }
+              .badge-header {
+                background-color: #2563eb;
+                padding: 16px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              }
+              .badge-content {
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 24px;
+              }
+              .badge-name {
+                font-size: 1.25rem;
+                font-weight: bold;
+                color: #111827;
+              }
+              .badge-type {
+                color: #4B5563;
+              }
+              .badge-qr {
+                width: 128px;
+                height: 128px;
+                border: 1px solid #E5E7EB;
+                padding: 4px;
+                border-radius: 4px;
+              }
+              .badge-details {
+                font-size: 0.875rem;
+                color: #4B5563;
+              }
+            </style>
+          </head>
+          <body class="bg-gray-100 p-4">
+            <div class="text-center mb-8">
+              <h1 class="text-2xl font-bold">Badge Print Preview</h1>
+              <p class="text-gray-500">${selectedGuestDetails.length} badge(s) ready to print</p>
+              <button class="bg-blue-600 text-white px-6 py-2 rounded mt-2" onclick="window.print()">Print Now</button>
+            </div>
+            <div class="flex flex-wrap justify-center gap-8">
+      `);
+      
+      selectedGuestDetails.forEach(guest => {
+        printWindow.document.write(`
+          <div class="badge-container">
+            <div class="badge-header">
+              <img src="/lovable-uploads/8b8ba947-ce02-4dae-b677-d70b3a0211b3.png" alt="Event Logo" class="h-10 object-contain">
+            </div>
+            <div class="badge-content">
+              <div>
+                <p class="badge-name">${guest.name}</p>
+                <p class="badge-type">${guest.jobTitle}</p>
+              </div>
+              <div class="badge-qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(guest.id)}" alt="QR Code">
+              </div>
+              <div class="badge-details">
+                <p class="font-medium">${eventData.date}</p>
+                <p>${eventData.time}</p>
+                <p class="text-xs">${eventData.location}</p>
+              </div>
+            </div>
+          </div>
+        `);
+      });
+      
+      printWindow.document.write(`
+            </div>
+          </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+    }
+    
     toast({
       title: "Badges sent to printer",
       description: `${selectedGuests.length} badge(s) have been sent to the printer.`,
@@ -142,7 +254,7 @@ const PrintBadges: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-1">Print Badges</h1>
         <p className="text-gray-500 dark:text-gray-400">
@@ -248,11 +360,8 @@ const PrintBadges: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button
                         onClick={() => {
-                          // Individual print action
-                          toast({
-                            title: "Badge preview",
-                            description: `Showing preview for ${guest.name}'s badge`,
-                          });
+                          setSelectedGuests([guest.id]);
+                          handlePrint();
                         }}
                         className="text-gold hover:text-gold-dark font-medium"
                       >
@@ -295,28 +404,15 @@ const PrintBadges: React.FC = () => {
               if (!guest) return null;
               
               return (
-                <div key={guest.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-md">
-                  <div className="bg-gold p-4 text-white text-center">
-                    <h3 className="font-bold text-xl">{guest.event}</h3>
-                  </div>
-                  
-                  <div className="p-6 flex flex-col items-center justify-center space-y-3">
-                    <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      <span className="text-2xl">{guest.name.charAt(0)}</span>
-                    </div>
-                    
-                    <div className="text-center">
-                      <h4 className="text-xl font-bold text-gray-900 dark:text-white">{guest.name}</h4>
-                      <p className="text-gray-600 dark:text-gray-400">{guest.jobTitle}</p>
-                      <p className="text-gray-500 dark:text-gray-500">{guest.company}</p>
-                    </div>
-                    
-                    <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 p-2 rounded-md flex items-center justify-center">
-                      <QrCode size={80} />
-                    </div>
-                    
-                    <p className="text-xs text-gray-400">ID: {guest.id}</p>
-                  </div>
+                <div key={guest.id} className="flex justify-center">
+                  <EventBadge 
+                    name={guest.name}
+                    type={guest.jobTitle}
+                    date={eventData.date}
+                    time={eventData.time}
+                    location={eventData.location}
+                    qrValue={guest.id}
+                  />
                 </div>
               );
             })}
