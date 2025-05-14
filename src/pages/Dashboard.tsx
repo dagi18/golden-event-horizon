@@ -43,14 +43,14 @@ const Dashboard: React.FC = () => {
   const renderDashboardContent = () => {
     if (user?.role === 'usher') {
       return (
-        <div>
+        <div className="text-center">
           <h2 className="text-xl font-semibold mb-4">Your Assigned Events</h2>
           <div className="grid gap-6 md:grid-cols-2">
             {events.slice(0, 2).map((event) => (
               <div key={event.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-5 border border-gray-200 dark:border-gray-700">
                 <h3 className="font-medium text-lg">{event.name}</h3>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-3">{event.date}</div>
-                <div className="flex items-center text-sm mb-2">
+                <div className="flex items-center text-sm mb-2 justify-center">
                   <Calendar size={16} className="mr-2" />
                   <span>{event.location}</span>
                 </div>
@@ -223,7 +223,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="text-center">
       <header className="mb-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-gray-500 dark:text-gray-400">
