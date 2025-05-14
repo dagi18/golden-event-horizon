@@ -7,6 +7,7 @@ import DashboardLayout from './components/layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
 import EventStage from './pages/EventStage';
+import EventDetails from './pages/EventDetails';
 import Approvals from './pages/Approvals';
 import Analytics from './pages/Analytics';
 import Guests from './pages/Guests';
@@ -16,6 +17,7 @@ import Vendors from './pages/Vendors';
 import Settings from './pages/Settings';
 import UserManagement from './pages/UserManagement';
 import BadgeManagement from './pages/BadgeManagement';
+import Reports from './pages/Reports';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import Unauthorized from './pages/Unauthorized';
@@ -43,10 +45,12 @@ function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="events" element={<Events />} />
                 <Route path="events/stage" element={<EventStage />} />
+                <Route path="events/:eventId" element={<EventDetails />} />
                 <Route path="guests" element={<Guests />} />
                 <Route path="mobile-check-in" element={<MobileCheckIn />} />
                 <Route path="print-badges" element={<PrintBadges />} />
                 <Route path="badge-management" element={<BadgeManagement />} />
+                <Route path="reports" element={<Reports />} />
               </Route>
             </Route>
             

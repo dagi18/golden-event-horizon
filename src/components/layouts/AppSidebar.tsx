@@ -23,10 +23,12 @@ import {
   SidebarSeparator,
   SidebarTrigger,
   SidebarRail,
+  useSidebar
 } from '@/components/ui/sidebar';
 
 const AppSidebar: React.FC = () => {
   const { user, logout, switchRole } = useAuth();
+  const { state } = useSidebar();
   const location = useLocation();
   
   if (!user) return null;
@@ -47,7 +49,7 @@ const AppSidebar: React.FC = () => {
     { to: "/mobile-check-in", icon: Smartphone, label: "Mobile Check-in" },
     { to: "/analytics", icon: BarChart2, label: "Analytics" },
     { to: "/reports", icon: FileText, label: "Reports" },
-    { to: "/users", icon: UserCog, label: "User Management" },
+    { to: "/user-management", icon: UserCog, label: "User Management" },
     { to: "/settings", icon: Settings, label: "Settings" },
   ];
   
@@ -103,9 +105,11 @@ const AppSidebar: React.FC = () => {
                     isActive={isActive(item.to)}
                     tooltip={item.label}
                   >
-                    <Link to={item.to}>
-                      <item.icon size={20} />
-                      <span>{item.label}</span>
+                    <Link to={item.to} className="flex items-center">
+                      <item.icon size={20} className="flex-shrink-0" />
+                      <span className={`ml-2 ${state === 'collapsed' ? 'sr-only' : ''}`}>
+                        {item.label}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -153,7 +157,7 @@ const AppSidebar: React.FC = () => {
             <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
               <span className="text-sm font-medium">{user.name.charAt(0)}</span>
             </div>
-            <div>
+            <div className={state === 'collapsed' ? 'sr-only' : ''}>
               <div className="font-medium text-sm">{user.name}</div>
               <div className="text-xs text-gray-500 capitalize">{user.role}</div>
             </div>

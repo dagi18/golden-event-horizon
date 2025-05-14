@@ -1,137 +1,139 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Search, Plus, Filter } from 'lucide-react';
-import { mockApi, Event } from '../services/mockApi';
-import { useAuth } from '../contexts/AuthContext';
+import { CalendarDays, Plus, Search, Filter, Eye } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const Events: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const { user } = useAuth();
+  
+  const mockEvents = [
+    { 
+      id: "1",
+      title: "Annual Tech Conference", 
+      date: "2023-10-15",
+      location: "San Francisco Convention Center",
+      attendees: 1250,
+      status: "published",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80"
+    },
+    { 
+      id: "2",
+      title: "Product Launch", 
+      date: "2023-11-05",
+      location: "Tech Hub, New York",
+      attendees: 500,
+      status: "draft",
+      image: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80"
+    },
+    { 
+      id: "3",
+      title: "Developer Workshop", 
+      date: "2023-09-20",
+      location: "Online",
+      attendees: 350,
+      status: "published",
+      image: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?auto=format&fit=crop&w=800&q=80"
+    },
+    { 
+      id: "4",
+      title: "Industry Networking", 
+      date: "2023-12-01",
+      location: "Chicago Business Center",
+      attendees: 200,
+      status: "draft",
+      image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=800&q=80"
+    },
+  ];
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setIsLoading(true);
-      try {
-        const data = await mockApi.getEvents();
-        setEvents(data);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchEvents();
-  }, []);
-
-  const filteredEvents = events.filter(event => 
-    event.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredEvents = mockEvents.filter(event =>
+    event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const renderStatus = (status: string) => {
-    return <span className={`status-pill status-${status}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
-  };
-
   return (
-    <div>
+    <div className="animate-enter">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold mb-1">Events</h1>
           <p className="text-gray-500 dark:text-gray-400">
-            {user?.role === 'admin' || user?.role === 'organizer' 
-              ? 'Create, edit, and manage your events' 
-              : 'View your assigned events'}
+            Manage your organization's events
           </p>
         </div>
         
-        {(user?.role === 'admin' || user?.role === 'organizer') && (
-          <Link
-            to="/events/stage"
-            className="mt-4 md:mt-0 inline-flex items-center bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-md transition-colors"
-          >
+        <Link to="/events/stage">
+          <Button className="mt-4 md:mt-0 bg-gold hover:bg-gold-dark">
             <Plus size={18} className="mr-1" />
-            New Event
-          </Link>
-        )}
+            Create New Event
+          </Button>
+        </Link>
       </div>
       
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-grow">
-            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <input 
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-md"
               type="text"
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
             />
           </div>
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+          <Button variant="outline" className="flex items-center">
             <Filter size={18} className="mr-2" />
-            <span>Filter</span>
-          </button>
+            Filter
+          </Button>
         </div>
-        
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="w-10 h-10 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Calendar size={48} className="text-gray-300 dark:text-gray-600 mb-3" />
-            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">No events found</h3>
-            <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filters</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Guests</th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredEvents.map((event) => (
-                  <tr key={event.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900 dark:text-white">{event.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {event.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {event.location}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {renderStatus(event.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {event.guests} / {event.maxGuests}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <Link
-                        to={`/events/${event.id}`}
-                        className="text-gold hover:text-gold-dark font-medium"
-                      >
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredEvents.map((event) => (
+          <Card key={event.id} className="overflow-hidden hover:shadow-md transition-shadow">
+            <CardHeader className="p-0">
+              <AspectRatio ratio={16 / 9}>
+                <img 
+                  src={event.image} 
+                  alt={event.title}
+                  className="w-full h-full object-cover"
+                />
+              </AspectRatio>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-start mb-2">
+                <CardTitle className="text-xl">{event.title}</CardTitle>
+                <div className={`status-pill ${event.status === 'published' ? 'status-published' : 'status-draft'}`}>
+                  {event.status}
+                </div>
+              </div>
+              <CardDescription className="flex items-center mt-2">
+                <CalendarDays size={16} className="mr-1" />
+                {new Date(event.date).toLocaleDateString('en-US', { 
+                  month: 'long', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                })}
+              </CardDescription>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {event.location}
+              </p>
+              <div className="mt-3 text-sm font-medium">
+                {event.attendees} attendees
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between pt-0">
+              <Link to={`/events/${event.id}`}>
+                <Button variant="outline" size="sm" className="text-gold hover:text-gold-dark">
+                  <Eye size={16} className="mr-1" />
+                  View Details
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
     </div>
   );

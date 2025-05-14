@@ -36,6 +36,9 @@
     --ring: 240 5.9% 10%;
 
     --radius: 0.5rem;
+    
+    --gold: 47 68% 51%;
+    --gold-dark: 47 68% 45%;
   }
 
   .dark {
@@ -66,6 +69,9 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    
+    --gold: 47 68% 51%;
+    --gold-dark: 47 68% 45%;
   }
 }
 
@@ -107,6 +113,22 @@
   .sidebar-item-active {
     @apply bg-accent text-accent-foreground;
   }
+  
+  .bg-gold {
+    @apply bg-[hsl(var(--gold))];
+  }
+  
+  .hover\:bg-gold-dark:hover {
+    @apply hover:bg-[hsl(var(--gold-dark))];
+  }
+  
+  .text-gold {
+    @apply text-[hsl(var(--gold))];
+  }
+  
+  .hover\:text-gold-dark:hover {
+    @apply hover:text-[hsl(var(--gold-dark))];
+  }
 }
 
 .animate-enter {
@@ -115,4 +137,42 @@
 
 .animate-exit {
   animation: fade-out 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.transition-width {
+  transition-property: width;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Make sure sidebar rail is always visible */
+[data-sidebar="rail"] {
+  display: flex !important;
+}
+
+/* Ensure sidebar menu items always display their icons */
+[data-sidebar="menu-button"] [data-lucide] {
+  flex-shrink: 0;
 }

@@ -3,16 +3,13 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Bell, Menu, Moon, Sun } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
+import { useSidebar } from '@/components/ui/sidebar';
 
-interface TopbarProps {
-  onToggleSidebar: () => void;
-  sidebarOpen: boolean;
-}
-
-const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar, sidebarOpen }) => {
+const Topbar: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const location = useLocation();
   const { toast } = useToast();
+  const { toggleSidebar } = useSidebar();
   
   const toggleDarkMode = () => {
     if (isDarkMode) {
@@ -43,18 +40,17 @@ const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar, sidebarOpen }) => {
     if (path.startsWith('/events/') && path.includes('/badge-print')) return 'Print Badges';
     if (path.startsWith('/events/') && path.includes('/ratings')) return 'Event Ratings';
     if (path.startsWith('/events/') && path.includes('/assign-ushers')) return 'Assign Ushers';
-    if (path.startsWith('/events/')) return 'Event Details';
+    if (path.startsWith('/events/') && !path.includes('/stage')) return 'Event Details';
     
     if (path === '/guests') return 'All Guests';
     if (path === '/vendors') return 'Vendors';
     if (path === '/approvals') return 'Approvals';
-    if (path === '/badge-templates') return 'Badge Templates';
-    if (path === '/badge-system') return 'Badge System';
+    if (path === '/badge-management') return 'Badge Management';
     if (path === '/print-badges') return 'Print Badges';
     if (path === '/mobile-check-in') return 'Mobile Check-In';
     if (path === '/analytics') return 'Analytics';
     if (path === '/reports') return 'Reports';
-    if (path === '/users') return 'User Management';
+    if (path === '/user-management') return 'User Management';
     if (path === '/settings') return 'Settings';
     
     return 'EventPro';
@@ -69,8 +65,8 @@ const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar, sidebarOpen }) => {
     <header className="bg-white dark:bg-gray-900 h-16 border-b border-gray-200 dark:border-gray-800 px-4 flex items-center justify-between print:hidden">
       <div className="flex items-center gap-4">
         <button
-          onClick={onToggleSidebar}
-          className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden"
+          onClick={toggleSidebar}
+          className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           <Menu size={22} />
         </button>
